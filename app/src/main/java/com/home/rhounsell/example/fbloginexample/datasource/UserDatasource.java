@@ -29,7 +29,7 @@ public class UserDatasource {
     public void close(){
         database.close();
     }
-    public void createUser(User user){
+    public User createUser(User user){
         ContentValues values = new ContentValues();
         values.put(UserEntry._ID, user.getUserId());
         values.put(UserEntry.COLUMN_NAME_NAME, user.getName());
@@ -37,7 +37,28 @@ public class UserDatasource {
         values.put(UserEntry.COLUMN_NAME_FB_ID, user.getFbId());
 
         long insertId=database.insert(UserEntry.TABLE_NAME, null, values);
-
+        Cursor cursor = database.query(UserEntry.TABLE_NAME,
+                allColumns,
+                UserEntry._ID+"="+insertId,
+                null,null,null,null);
+        User newUser= new User();
+        if(cursor.moveToFirst()){
+            newUser = cursorToUser(cursor);
+        }
+        cursor.close();
+        return newUser;
+    }
+    public User getUser(long userId){
+        Cursor cursor = database.query(UserEntry.TABLE_NAME,
+                allColumns,
+                UserEntry._ID+"="+userId,
+                null,null,null,null);
+        User user = new User();
+        if(cursor.moveToFirst()){
+            user = cursorToUser(cursor);
+        }
+        cursor.close();
+        return user;
     }
     public User cursorToUser(Cursor cursor){
         User user = new User();
