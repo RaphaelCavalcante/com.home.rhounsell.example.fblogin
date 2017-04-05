@@ -13,14 +13,14 @@ import com.home.rhounsell.example.fbloginexample.model.User;
  * Created by raphael on 03/04/17.
  */
 
-public class UserDatasource {
+public class UserDataSource {
     private SQLiteHelper helper;
     private SQLiteDatabase database;
     private String allColumns[]={UserEntry._ID,
             UserEntry.COLUMN_NAME_NAME,
             UserEntry.COLUMN_NAME_EMAIL,
             UserEntry.COLUMN_NAME_FB_ID};
-    public UserDatasource (Context context){
+    public UserDataSource(Context context){
         helper = SQLiteHelper.getInstance(context);
     }
     public void open(){
@@ -29,12 +29,11 @@ public class UserDatasource {
     public void close(){
         database.close();
     }
-    public User createUser(User user){
+    public User createUser(String name, String email, String fbId){
         ContentValues values = new ContentValues();
-        values.put(UserEntry._ID, user.getUserId());
-        values.put(UserEntry.COLUMN_NAME_NAME, user.getName());
-        values.put(UserEntry.COLUMN_NAME_EMAIL, user.getEmail());
-        values.put(UserEntry.COLUMN_NAME_FB_ID, user.getFbId());
+        values.put(UserEntry.COLUMN_NAME_NAME, name);
+        values.put(UserEntry.COLUMN_NAME_EMAIL, email);
+        values.put(UserEntry.COLUMN_NAME_FB_ID, fbId);
 
         long insertId=database.insert(UserEntry.TABLE_NAME, null, values);
         Cursor cursor = database.query(UserEntry.TABLE_NAME,
@@ -59,6 +58,12 @@ public class UserDatasource {
         }
         cursor.close();
         return user;
+    }
+    public int countUsers(){
+        String rawQuery = "select count(*) from "+UserEntry.TABLE_NAME;
+        Cursor cursor = database.rawQuery(rawQuery, null);
+        cursor.moveToFirst();
+        return cursor.getInt(0);
     }
     public User cursorToUser(Cursor cursor){
         User user = new User();
